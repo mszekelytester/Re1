@@ -1,0 +1,68 @@
+import os
+from flask import Flask
+# you need this to get to the http request obj
+from flask import request
+
+
+app = Flask(__name__)
+
+#lets see how to pass data via the url: ? specifies our query values/strings  
+# url is https://d3-stuff-robo-bila.c9.io/?Visitor=robo
+# the issue with query strings is that they get ugly when they are long
+
+#you can have more routes to the same view and here is a another one
+# <name> says capture everything after the / an put it in the Vname variable
+@app.route("/<Vname>")
+@app.route("/")
+def index(Vname="Default name"):
+    MyName = request.args.get('Visitor', Vname)
+    return "Hey you old body ol pal {}".format(MyName)
+
+
+#here is the more elegant way in index1 function where we don't need to look at the http request as the arg vcomes in the url
+# <> tags rock
+@app.route("/hello/<Vname>")
+def index1(Vname="Default name"):
+    return "Hey you old body ol pal {}".format(Vname)
+
+
+#lets convert the args in the url from strings to numbers
+# but if you enter something that cant be converted to int you get 
+# Internal Server Error msg in your browser
+@app.route("/addstr/<num1>/<num2>")
+def add (num1, num2):
+    #line below is bad as + means concatenate strings
+    #return "----> {} + {} = {}".format(num1, num2, num1+num2)
+    #so you can convert to int
+    return "----> {} + {} = {}".format(num1, num2, int(num1)+int(num2))
+
+# there is an alternative where in the line above you can tell in the url that those
+# args need to be int
+# if you enter something that is not an int you get an 404 Page Not found msg in the browser
+@app.route("/addint/<int:num1>/<int:num2>")
+def addInt (num1, num2):
+    #return expects a string
+    return str(num1 +num2)
+
+#ok lts go extrme and add int or float together
+@app.route("/addanything/<int:num1>/<int:num2>")
+@app.route("/addanything/<int:num1>/<float:num2>")
+@app.route("/addanything/<float:num1>/<int:num2>")
+@app.route("/addanything/<float:num1>/<float:num2>")
+def addAnything (num1, num2):
+    #return expects a string
+    return str(num1 +num2)
+
+#typical hello world scenario
+#def index():
+#    return "sasy"
+    
+
+
+#for cloud9 only
+app.run(host=os.getenv('IP', '0.0.0.0'), port=int(os.getenv('PORT', 8080)))
+    
+if __name__ == '__main__':
+    app.run()
+    app.Debug = True
+    
